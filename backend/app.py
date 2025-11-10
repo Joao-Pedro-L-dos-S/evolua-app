@@ -225,6 +225,20 @@ def get_plan(plan_id):
         } for w in plan.weeks]
     }), 200
 
+@app.route('/api/plans/user/<int:user_id>', methods=['GET'])
+def get_user_plans(user_id):
+    """Get all plans for a user"""
+    plans = Plan.query.filter_by(user_id=user_id).all()
+
+    return jsonify([{
+        'id': p.id,
+        'name': p.name,
+        'description': p.description,
+        'duration_weeks': p.duration_weeks,
+        'created_at': p.created_at.isoformat(),
+        'weeks_count': len(p.weeks)
+    } for p in plans]), 200
+
 # ==================== WORKOUT ROUTES ====================
 
 @app.route('/api/workouts', methods=['POST'])

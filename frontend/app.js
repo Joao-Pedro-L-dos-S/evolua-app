@@ -265,12 +265,40 @@ async function loadPlansData() {
     plansList.innerHTML = '<p>Carregando planos...</p>';
 
     try {
-        // In a real app, we'd fetch existing plans
-        // For now, show message to create a new one
-        plansList.innerHTML = '<p>Nenhum plano criado. Clique em "Criar Novo Plano" para começar!</p>';
+        const plans = await api.getUserPlans(appState.userId);
+
+        if (plans.length === 0) {
+            plansList.innerHTML = '<p>Nenhum plano criado. Clique em "Criar Novo Plano" para começar!</p>';
+        } else {
+            plansList.innerHTML = plans.map(p => `
+                <div class="plan-item">
+                    <div class="plan-info">
+                        <h4>${p.name}</h4>
+                        <p>${p.description}</p>
+                        <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem;">
+                            📅 ${p.duration_weeks} semanas | 📋 ${p.weeks_count} semanas planejadas
+                        </p>
+                        <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;">
+                            Criado em ${new Date(p.created_at).toLocaleDateString('pt-BR')}
+                        </p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="viewPlanDetails(${p.id})">Ver Detalhes</button>
+                </div>
+            `).join('');
+        }
     } catch (error) {
         console.error('Error loading plans:', error);
         plansList.innerHTML = '<p>Erro ao carregar planos</p>';
+    }
+}
+
+async function viewPlanDetails(planId) {
+    try {
+        const plan = await api.getPlan(planId);
+        console.log('Detalhes do plano:', plan);
+        alert(`Plano: ${plan.name}\n\nSemanas: ${plan.weeks.length}\nExercícios estruturados por semana`);
+    } catch (error) {
+        alert('Erro ao carregar detalhes: ' + error.message);
     }
 }
 

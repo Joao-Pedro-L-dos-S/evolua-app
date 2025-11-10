@@ -76,6 +76,10 @@ class EvoluaAPI {
         return this.request(`/plans/${planId}`);
     }
 
+    async getUserPlans(userId) {
+        return this.request(`/plans/user/${userId}`);
+    }
+
     // Workout endpoints
     async createWorkout(workoutData) {
         return this.request('/workouts', {
