@@ -34,6 +34,12 @@ function setupEventListeners() {
         });
     });
 
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+
     // Auth form
     const authForm = document.getElementById('auth-form');
     if (authForm) {
@@ -156,12 +162,36 @@ async function handleAuth(e) {
         localStorage.setItem('userId', user.id);
         localStorage.setItem('userName', user.name);
 
+        document.getElementById('auth-name').value = '';
+        document.getElementById('auth-email').value = '';
+        document.getElementById('auth-password').value = '';
+
         closeModal(document.getElementById('auth-modal'));
+        updateUserName();
         loadUserData();
         showDashboard();
     } catch (error) {
         alert('Erro ao fazer login/registrar: ' + error.message);
     }
+}
+
+function handleLogout() {
+    if (confirm('Tem certeza que deseja sair?')) {
+        logout();
+    }
+}
+
+function logout() {
+    // Limpar estado
+    appState.currentUser = null;
+    appState.userId = null;
+
+    // Limpar localStorage
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+
+    // Mostrar modal de login
+    showAuthModal();
 }
 
 // Load user data
@@ -170,6 +200,7 @@ async function loadUserData() {
         const user = await api.getUser(appState.userId);
         appState.currentUser = user;
         updateWelcomeMessage();
+        updateUserName();
     } catch (error) {
         console.error('Error loading user data:', error);
     }
@@ -179,6 +210,13 @@ function updateWelcomeMessage() {
     const welcomeMsg = document.getElementById('welcome-message');
     if (welcomeMsg && appState.currentUser) {
         welcomeMsg.textContent = `Bem-vindo, ${appState.currentUser.name}! Vamos continuar sua transformação!`;
+    }
+}
+
+function updateUserName() {
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement && appState.currentUser) {
+        userNameElement.textContent = appState.currentUser.name;
     }
 }
 
