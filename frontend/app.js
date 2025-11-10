@@ -292,9 +292,82 @@ async function loadDashboardData() {
         // Load medals
         const medals = await api.getUserMedals(appState.userId);
         document.getElementById('medals-count').textContent = medals.length;
+
+        // Calculate streak
+        const streak = calculateStreak(workouts);
+        document.getElementById('streak').textContent = streak + ' dias';
     } catch (error) {
         console.error('Error loading dashboard:', error);
     }
+}
+
+/**
+ * Calcula o número de dias consecutivos de treino
+ */
+function calculateStreak(workouts) {
+    if (workouts.length === 0) {
+        return 0;
+    }
+
+    // Ordenar treinos por data (mais recentes primeiro)
+    const sortedWorkouts = workouts.sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+    });
+
+    // Converter datas para apenas a data (sem hora)
+    const uniqueDates = [];
+    const dateSet = new Set();
+
+    sortedWorkouts.forEach(workout => {
+        const date = new Date(workout.date);
+        const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        if (!dateSet.has(dateKey)) {
+            dateSet.add(dateKey);
+            uniqueDates.push(new Date(dateKey));
+        }
+    });
+
+    // Se não há treinos, streak é 0
+    if (uniqueDates.length === 0) {
+        return 0;
+    }
+
+    let streak = 1; // Pelo menos 1 dia
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Verificar se o treino mais recente foi hoje ou ontem
+    const mostRecentDate = new Date(uniqueDates[0]);
+    mostRecentDate.setHours(0, 0, 0, 0);
+
+    const dayDifference = Math.floor((today - mostRecentDate) / (1000 * 60 * 60 * 24));
+
+    // Se o treino mais recente foi há 2 ou mais dias, streak é 0
+    if (dayDifference > 1) {
+        return 0;
+    }
+
+    // Contar dias consecutivos para trás
+    for (let i = 0; i < uniqueDates.length - 1; i++) {
+        const currentDate = new Date(uniqueDates[i]);
+        currentDate.setHours(0, 0, 0, 0);
+
+        const nextDate = new Date(uniqueDates[i + 1]);
+        nextDate.setHours(0, 0, 0, 0);
+
+        const daysDiff = Math.floor((currentDate - nextDate) / (1000 * 60 * 60 * 24));
+
+        // Se a diferença é exatamente 1 dia, continua o streak
+        if (daysDiff === 1) {
+            streak++;
+        } else {
+            // Se não é 1 dia de diferença, para de contar
+            break;
+        }
+    }
+
+    return streak;
 }
 
 // Plans
