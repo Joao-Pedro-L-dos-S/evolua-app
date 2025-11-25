@@ -1,135 +1,140 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = "http://localhost:5000/api";
 
 class EvoluaAPI {
-    constructor(baseURL = API_BASE_URL) {
-        this.baseURL = baseURL;
+  constructor(baseURL = API_BASE_URL) {
+    this.baseURL = baseURL;
+  }
+
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "API Error");
     }
 
-    async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
-        const response = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers,
-            },
-            ...options,
-        });
+    return response.json();
+  }
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'API Error');
-        }
+  // User endpoints
+  async createUser(userData) {
+    return this.request("/users", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+  }
 
-        return response.json();
+  async getUser(userId) {
+    return this.request(`/users/${userId}`);
+  }
+
+  async updateUser(userId, userData) {
+    return this.request(`/users/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async loginUser(email) {
+    return this.request(`/users/email/${email}`);
+  }
+
+  // Exercise endpoints
+  async getExercises(filters = {}) {
+    let url = "/exercises";
+    const params = new URLSearchParams();
+
+    if (filters.muscle_group)
+      params.append("muscle_group", filters.muscle_group);
+    if (filters.difficulty) params.append("difficulty", filters.difficulty);
+
+    if (params.toString()) {
+      url += `?${params.toString()}`;
     }
 
-    // User endpoints
-    async createUser(userData) {
-        return this.request('/users', {
-            method: 'POST',
-            body: JSON.stringify(userData),
-        });
-    }
+    return this.request(url);
+  }
 
-    async getUser(userId) {
-        return this.request(`/users/${userId}`);
-    }
+  async createExercise(exerciseData) {
+    return this.request("/exercises", {
+      method: "POST",
+      body: JSON.stringify(exerciseData),
+    });
+  }
 
-    async updateUser(userId, userData) {
-        return this.request(`/users/${userId}`, {
-            method: 'PUT',
-            body: JSON.stringify(userData),
-        });
-    }
+  // Plan endpoints
+  async createPlan(planData) {
+    return this.request("/plans", {
+      method: "POST",
+      body: JSON.stringify(planData),
+    });
+  }
 
-    async loginUser(email) {
-        return this.request(`/users/email/${email}`);
-    }
+  async getPlan(planId) {
+    return this.request(`/plans/${planId}`);
+  }
 
-    // Exercise endpoints
-    async getExercises(filters = {}) {
-        let url = '/exercises';
-        const params = new URLSearchParams();
+  async getUserPlans(userId) {
+    return this.request(`/plans/user/${userId}`);
+  }
 
-        if (filters.muscle_group) params.append('muscle_group', filters.muscle_group);
-        if (filters.difficulty) params.append('difficulty', filters.difficulty);
+  async deletePlan(planId) {
+    return this.request(`/plans/${planId}`, {
+      method: "DELETE",
+    });
+  }
 
-        if (params.toString()) {
-            url += `?${params.toString()}`;
-        }
+  // Workout endpoints
+  async createWorkout(workoutData) {
+    return this.request("/workouts", {
+      method: "POST",
+      body: JSON.stringify(workoutData),
+    });
+  }
 
-        return this.request(url);
-    }
+  async getUserWorkouts(userId) {
+    return this.request(`/workouts/${userId}`);
+  }
 
-    async createExercise(exerciseData) {
-        return this.request('/exercises', {
-            method: 'POST',
-            body: JSON.stringify(exerciseData),
-        });
-    }
+  // Progress endpoints
+  async logProgress(progressData) {
+    return this.request("/progress", {
+      method: "POST",
+      body: JSON.stringify(progressData),
+    });
+  }
 
-    // Plan endpoints
-    async createPlan(planData) {
-        return this.request('/plans', {
-            method: 'POST',
-            body: JSON.stringify(planData),
-        });
-    }
+  async getUserProgress(userId) {
+    return this.request(`/progress/${userId}`);
+  }
 
-    async getPlan(planId) {
-        return this.request(`/plans/${planId}`);
-    }
+  async getGamificationStats(userId) {
+    return this.request(`/gamification/stats/${userId}`);
+  }
 
-    async getUserPlans(userId) {
-        return this.request(`/plans/user/${userId}`);
-    }
+  // Medal endpoints
+  async getUserMedals(userId) {
+    return this.request(`/medals/${userId}`);
+  }
 
-    async deletePlan(planId) {
-        return this.request(`/plans/${planId}`, {
-            method: 'DELETE',
-        });
-    }
+  async awardMedal(medalData) {
+    return this.request("/medals", {
+      method: "POST",
+      body: JSON.stringify(medalData),
+    });
+  }
 
-    // Workout endpoints
-    async createWorkout(workoutData) {
-        return this.request('/workouts', {
-            method: 'POST',
-            body: JSON.stringify(workoutData),
-        });
-    }
-
-    async getUserWorkouts(userId) {
-        return this.request(`/workouts/${userId}`);
-    }
-
-    // Progress endpoints
-    async logProgress(progressData) {
-        return this.request('/progress', {
-            method: 'POST',
-            body: JSON.stringify(progressData),
-        });
-    }
-
-    async getUserProgress(userId) {
-        return this.request(`/progress/${userId}`);
-    }
-
-    // Medal endpoints
-    async getUserMedals(userId) {
-        return this.request(`/medals/${userId}`);
-    }
-
-    async awardMedal(medalData) {
-        return this.request('/medals', {
-            method: 'POST',
-            body: JSON.stringify(medalData),
-        });
-    }
-
-    // Health check
-    async health() {
-        return this.request('/health');
-    }
+  // Health check
+  async health() {
+    return this.request("/health");
+  }
 }
 
 // Create global API instance

@@ -396,5 +396,60 @@ def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'ok', 'message': 'Evolua API running'}), 200
 
+# ==================== GAMIFICATION ROUTES ====================
+
+@app.route('/api/gamification/stats/<int:user_id>', methods=['GET'])
+def get_gamification_stats(user_id):
+    """Get user's gamification stats (points, level, medals, etc)"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    medals = Medal.query.filter_by(user_id=user_id).all()
+    total_workouts = Workout.query.filter_by(
+        user_id=user_id,
+        completed=True
+    ).count()
+
+    # Calculate level based on points
+    level = (user.points // 500) + 1
+    progress_to_next_level = (user.points % 500) / 5
+
+    return jsonify({
+        'user_id': user_id,
+        'points': user.points,
+        'level': level,
+        'progress_to_next_level': min(progress_to_next_level, 100),
+        'total_workouts': total_workouts,
+        'total_medals': len(medals),
+        'medals': [{
+            'id': m.id,
+            'name': m.name,
+            'description': m.description,
+            'icon': m.icon,
+            'earned_at': m.earned_at.isoformat()
+        } for m in medals]
+    }), 200
+
+@app.route('/api/progress/<int:user_id>/stats', methods=['GET'])
+def get_progress_stats(user_id):
+    """Get user's progress statistics"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    progress_list = Progress.query.filter_by(user_id=user_id).order_by(Progress.date).all()
+    
+    return jsonify({
+        'weight_progression': [{
+            'id': p.id,
+            'date': p.date.isoformat(),
+            'weight': p.weight,
+        } for p in progress_list],
+        'summary': {
+            'total_workouts': Workout.query.filter_by(user_id=user_id, completed=True).count()
+        }
+    }), 200
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

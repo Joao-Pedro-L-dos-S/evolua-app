@@ -268,3 +268,9 @@ async function updateAllCharts(userId) {
     await createWeightChart(userId);
     await createWorkoutsChart(userId);
 }
+
+async function getProgressStats(userId) {
+    const response = await fetch(`${API_URL}/progress/${userId}/stats`);
+    if (!response.ok) throw new Error('Failed to fetch progress stats');
+    return response.json();
+}

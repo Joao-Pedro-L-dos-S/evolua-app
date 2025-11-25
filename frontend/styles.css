@@ -590,3 +590,88 @@ h2 {
 .gap-1 {
     gap: 1rem;
 }
+
+/* Medalhas */
+.medals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.medal-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 0.5rem;
+    border: 2px solid #d1d5db;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.medal-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.medal-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.medal-item h4 {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.medal-item p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.medal-item small {
+    margin-top: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
+/* Level Progress */
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 6px;
+}
+
+#level-info {
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #8b5cf6;
+}
+
+#level-info p {
+    margin: 0.5rem 0;
+    color: #1f2937;
+}
+
+#user-level {
+    color: #8b5cf6;
+    font-size: 1.2rem;
+}
